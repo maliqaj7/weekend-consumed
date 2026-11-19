@@ -1,0 +1,1419 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MALIQ'S — Weekend Consumed</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow+Condensed:wght@300;400;600;700&family=Inconsolata:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080C14;
+  --bg2:      #0D1520;
+  --bg3:      #111D2E;
+  --navy:     #0A1628;
+  --blue1:    #2A4A6C;
+  --blue2:    #1E5799;
+  --ice:      #6DCFED;
+  --frost:    #C8E8F4;
+  --white:    #F0F6FC;
+  --dim:      #8AAFC8;
+  --sat:      #4AABDF;
+  --sun:      #72DFF0;
+  --work:     #0E3057;
+  --accent:   #6DCFED;
+  --red:      #D94030;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Inconsolata', monospace;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+/* ─── NOISE OVERLAY ─── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999; opacity:.4;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: var(--navy);
+  border-bottom: 1px solid var(--blue1);
+  padding: 64px 56px 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::after {
+  content:'';
+  position:absolute;
+  bottom:-80px; right:-80px;
+  width:320px; height:320px;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(86,207,225,0.07) 0%, transparent 70%);
+}
+
+.h-eyebrow {
+  font-family:'Inconsolata', monospace;
+  font-size:12px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color: var(--dim);
+  margin-bottom:20px;
+}
+
+.h-name {
+  font-family:'Black Han Sans', sans-serif;
+  font-size:100px;
+  line-height:.9;
+  letter-spacing:-2px;
+  color: var(--white);
+  position:relative;
+  z-index:1;
+}
+
+.h-name span {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--ice);
+}
+
+.h-word {
+  font-family:'Barlow Condensed', sans-serif;
+  font-weight:700;
+  font-size:48px;
+  letter-spacing:12px;
+  text-transform:uppercase;
+  color: var(--ice);
+  margin-top:4px;
+  opacity:.7;
+}
+
+.h-sub {
+  font-size:15px;
+  color: var(--dim);
+  line-height:1.7;
+  margin-top:24px;
+  max-width:420px;
+  font-weight:300;
+}
+
+.h-stat-block {
+  position:absolute;
+  right:56px; top:64px;
+  text-align:right;
+}
+
+.h-stat-num {
+  font-family:'Black Han Sans', sans-serif;
+  font-size:88px;
+  line-height:1;
+  color: var(--ice);
+  display:block;
+}
+
+.h-stat-label {
+  font-size:13px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color: var(--dim);
+  line-height:1.6;
+}
+
+/* ─── SECTION BASE ─── */
+.sec {
+  padding: 48px 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  animation: fadeUp .6s ease both;
+}
+
+.sec:nth-child(2) { animation-delay:.05s; }
+.sec:nth-child(3) { animation-delay:.1s; }
+.sec:nth-child(4) { animation-delay:.15s; }
+.sec:nth-child(5) { animation-delay:.2s; }
+.sec:nth-child(6) { animation-delay:.25s; }
+.sec:nth-child(7) { animation-delay:.3s; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.sec-label {
+  font-size:12px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color: var(--dim);
+  margin-bottom:8px;
+}
+
+.sec-title {
+  font-family:'Barlow Condensed', sans-serif;
+  font-weight:700;
+  font-size:32px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:32px;
+  color: var(--white);
+}
+
+/* ─── CLOCK DIAGRAM ─── */
+.clock-diagram {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.clock-hero-wrap {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  flex-shrink: 0;
+}
+
+.clock-hero-wrap canvas {
+  display: block;
+  width: 500px !important;
+  height: 500px !important;
+}
+
+/* Floating HTML annotations pinned around the clock */
+.ca {
+  position: absolute;
+  font-family: 'Inconsolata', monospace;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.ca-time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 1px;
+}
+
+.ca-desc {
+  font-size: 11px;
+  color: var(--dim);
+  display: block;
+  line-height: 1.4;
+}
+
+/* Ring identifier badges */
+.ring-badge {
+  position: absolute;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* Clock bottom panel */
+.clock-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.clock-info-card {
+  background: var(--bg);
+  border: 1px solid var(--blue1);
+  border-radius: 8px;
+  padding: 20px 22px;
+}
+
+.clock-info-card h4 {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 14px;
+}
+
+/* Horizontal legend */
+.h-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.h-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+}
+
+.h-leg-swatch {
+  width: 24px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.h-leg-name { color: var(--dim); }
+.h-leg-val  { color: var(--white); font-weight: 700; margin-left: 4px; }
+
+/* ─── RADIAL CLOCKS ─── */
+.clocks-wrap {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.clock-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.clock-day-label {
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  font-family: 'Inconsolata', monospace;
+}
+
+.clock-annotation {
+  font-size: 10px;
+  color: var(--dim);
+  text-align: center;
+  font-weight: 300;
+  line-height: 1.5;
+  max-width: 200px;
+}
+
+/* Legend */
+.clock-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+  margin-top: 8px;
+  align-self: flex-start;
+  padding-top: 24px;
+}
+
+.cl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 1px;
+}
+
+.cl-swatch {
+  width: 28px;
+  height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.cl-name { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; }
+.cl-hrs  { font-size: 11px; font-weight: 600; color: var(--white); margin-left: auto; }
+
+/* ─── DONUT + LEGEND ─── */
+.chart-row { display:flex; gap:48px; align-items:center; flex-wrap:wrap; }
+svg.donut { flex-shrink:0; }
+
+.legend { display:flex; flex-direction:column; gap:12px; }
+.leg-item { display:flex; align-items:center; gap:14px; font-size:13px; }
+.leg-swatch { width:16px; height:16px; border-radius:3px; flex-shrink:0; }
+.leg-name { color:var(--dim); width:140px; font-size:13px; letter-spacing:0.5px; }
+.leg-val { font-weight:700; color:var(--white); font-size:15px; }
+.leg-pct { color:var(--sat); font-size:12px; margin-left:4px; font-weight:600; }
+
+/* ─── MOOD CHART ─── */
+.mood-wrap {
+  background: var(--bg2);
+  border-radius:8px;
+  padding:28px 24px 36px;
+  position:relative;
+  border:1px solid var(--blue1);
+}
+
+canvas { width:100%; display:block; }
+
+.mood-legend {
+  display:flex; gap:28px;
+  margin-top:20px;
+  font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--dim);
+}
+.mood-legend span { display:flex; align-items:center; gap:10px; }
+.ml-sat { width:28px; height:3px; background:var(--sat); display:inline-block; }
+.ml-sun { width:28px; height:3px; background:var(--sun); display:inline-block; border-top:3px dashed var(--sun); }
+
+/* ─── WORST / BEST MOMENTS ─── */
+.moments-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.moment-card {
+  border-radius:8px;
+  padding:28px 24px;
+  position:relative;
+  overflow:hidden;
+}
+
+.moment-card.worst {
+  background: #0D0810;
+  border:1px solid #2A1520;
+}
+
+.moment-card.best {
+  background: #080D14;
+  border:1px solid var(--blue1);
+}
+
+.moment-card::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:2px;
+}
+.moment-card.worst::before { background: #C0392B; }
+.moment-card.best::before  { background: var(--ice); }
+
+.moment-time {
+  font-family:'Black Han Sans', sans-serif;
+  font-size:42px;
+  line-height:1;
+  margin-bottom:4px;
+}
+.moment-card.worst .moment-time { color:#C0392B; }
+.moment-card.best  .moment-time { color:var(--ice); }
+
+.moment-day {
+  font-size:12px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--dim); margin-bottom:14px;
+}
+
+.moment-desc {
+  font-size:14px; line-height:1.7; color:var(--dim); font-weight:300;
+}
+
+/* ─── HIDDEN COSTS ─── */
+.costs-grid {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.cost-card {
+  background:var(--bg2);
+  border:1px solid var(--blue1);
+  border-radius:6px;
+  padding:20px 16px;
+}
+
+.cost-icon { font-size:20px; margin-bottom:10px; }
+
+.cost-num {
+  font-family:'Black Han Sans', sans-serif;
+  font-size:36px;
+  line-height:1;
+  color:var(--ice);
+  margin-bottom:4px;
+}
+
+.cost-unit { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.cost-desc { font-size:12px; color:var(--dim); line-height:1.7; font-weight:300; }
+
+/* ─── SPLIT BAR ─── */
+.split-bar {
+  display:flex;
+  height:64px;
+  border-radius:4px;
+  overflow:hidden;
+  margin-bottom:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+}
+
+.split-work {
+  background: linear-gradient(90deg, #0E2A44, #1A4A70);
+  border-right:3px solid var(--ice);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Barlow Condensed', sans-serif;
+  font-weight:700; font-size:32px; letter-spacing:2px;
+  color:#6AABCF; gap:8px;
+}
+.split-free {
+  background:#0A1020;
+  flex:1;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Barlow Condensed', sans-serif;
+  font-weight:700; font-size:32px; letter-spacing:2px;
+  color:var(--ice); gap:8px;
+}
+
+.split-meta {
+  display:flex; justify-content:space-between;
+  font-size:13px; letter-spacing:1px; color:var(--dim); text-transform:uppercase;
+  margin-bottom:20px;
+}
+
+.split-note {
+  background:var(--bg2);
+  border-left:3px solid var(--ice);
+  padding:16px 20px;
+  font-size:14px;
+  color:var(--dim);
+  line-height:1.8;
+  font-weight:300;
+}
+.split-note strong { color:var(--frost); font-weight:700; }
+
+/* ─── BURDEN ─── */
+.burden-row {
+  display:flex; flex-direction:column; gap:20px;
+}
+
+.burden-item { display:flex; align-items:center; gap:20px; }
+
+.burden-name {
+  font-size:13px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--dim); width:160px; flex-shrink:0;
+}
+
+.burden-dots {
+  display:flex; gap:5px; flex:1;
+}
+
+.bdot {
+  height:10px; flex:1;
+  border-radius:2px;
+  background: var(--blue1);
+}
+.bdot.on { background: var(--ice); }
+.bdot.on.red { background: #C0392B; }
+.bdot.on.amber { background: #E8A838; }
+
+.burden-score {
+  font-family:'Black Han Sans', sans-serif;
+  font-size:22px;
+  width:40px; text-align:right;
+}
+
+.burden-arrow {
+  font-size:10px; color:var(--dim); width:60px; text-align:center; flex-shrink:0;
+}
+
+/* ─── FOOTER ─── */
+.footer {
+  background: var(--navy);
+  border-top:1px solid var(--blue1);
+  padding:60px 56px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.footer::before {
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:400px; height:400px;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(86,207,225,0.04) 0%, transparent 70%);
+}
+
+.footer-quote {
+  font-family:'Barlow Condensed', sans-serif;
+  font-weight:300;
+  font-size:28px;
+  line-height:1.4;
+  color: var(--frost);
+  max-width:560px;
+  margin:0 auto 20px;
+  position:relative; z-index:1;
+}
+
+.footer-quote em {
+  color:var(--ice);
+  font-style:italic;
+}
+
+.footer-sig {
+  font-size:9px; letter-spacing:5px; text-transform:uppercase; color:var(--dim);
+  position:relative; z-index:1;
+}
+
+/* ─── SATURDAY NIGHT NOTE ─── */
+.night-note {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  margin-top:24px;
+}
+
+.night-card {
+  background:var(--bg2);
+  border:1px solid var(--blue1);
+  border-radius:6px;
+  padding:20px;
+  font-size:11px;
+  color:var(--dim);
+  line-height:1.7;
+  font-weight:300;
+}
+
+.night-card .nc-day {
+  font-size:9px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--ice); margin-bottom:8px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <p class="h-eyebrow">Personal Data · Weekend Documentation · Sat & Sun</p>
+  <div class="h-name">MALIQ'S<br><span>WEEKEND</span></div>
+  <div class="h-word">CONSUMING</div>
+  <p class="h-sub">Two identical days. A 12-hour shift each. From the 5:25am alarm to the moment it's finally over.</p>
+  <div class="h-stat-block">
+    <span class="h-stat-num">24h</span>
+    <span class="h-stat-label">total hours worked<br>across the weekend</span>
+  </div>
+</header>
+
+<!-- ── SECTION 1: DUAL-RING CLOCK ── -->
+<section class="sec" style="background:var(--bg2)">
+  <p class="sec-label">Section 01 · Hour by Hour</p>
+  <h2 class="sec-title">How Each Day Was Spent</h2>
+
+  <!-- TOP ROW: How to read + SAT/SUN cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:32px;">
+    <div style="background:var(--bg);border:1px solid var(--blue1);border-radius:8px;padding:18px 20px;grid-column:span 1;">
+      <p style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:10px;">How to read</p>
+      <p style="font-size:13px;color:var(--dim);line-height:1.8;">A <strong style="color:var(--white)">12-hour clock</strong> — 12 at top, 6 at bottom, just like a wall clock. Each ring is split in half: <strong style="color:var(--white)">top half = AM · bottom half = PM</strong>. Read clockwise.</p>
+    </div>
+    <div style="background:rgba(74,171,223,0.07);border:1px solid #2A5A80;border-left:4px solid #4AABDF;border-radius:8px;padding:18px 20px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#4AABDF;letter-spacing:3px;margin-bottom:8px;">SATURDAY — INNER RING</div>
+      <p style="font-size:13px;color:var(--dim);line-height:1.7;">Shift done at <strong style="color:var(--white)">6:45pm</strong>. Home by <strong style="color:var(--white)">7pm</strong>. In bed by <strong style="color:var(--white)">9:30pm</strong>.<br>Mood at bedtime: <strong style="color:#D94030;">3/10</strong> — alarm in 8 hours.</p>
+    </div>
+    <div style="background:rgba(114,223,240,0.07);border:1px solid #2A6A80;border-left:4px solid #72DFF0;border-radius:8px;padding:18px 20px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#72DFF0;letter-spacing:3px;margin-bottom:8px;">SUNDAY — OUTER RING</div>
+      <p style="font-size:13px;color:var(--dim);line-height:1.7;">Same shift. Home by <strong style="color:var(--white)">7pm</strong>. Stays up till <strong style="color:var(--white)">midnight</strong>.<br>Mood at bedtime: <strong style="color:#72DFF0;">8/10</strong> — 5 days free.</p>
+    </div>
+  </div>
+
+  <!-- CLOCK + SIDE PANELS -->
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;">
+
+    <!-- LEFT: AM key moments -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="border-right:3px solid #C8A800;padding-right:16px;text-align:right;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#C8A800;">5:25am</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;">Wake · prep · out by 6:30</div>
+      </div>
+      <div style="border-right:3px solid #D94030;padding-right:16px;text-align:right;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#D94030;">6:45am</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;">Clock in · 12hrs begin<br><em style="color:#8AAFC8;">Mood: 4/10</em></div>
+      </div>
+      <div style="border-right:3px solid #1A9AAA;padding-right:16px;text-align:right;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#1A9AAA;">9:15am</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;">Break 1 — 30min<br><em style="color:#8AAFC8;">Mood: 3/10 (lowest)</em></div>
+      </div>
+      <div style="border-right:3px solid #1A9AAA;padding-right:16px;text-align:right;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#1A9AAA;">1:00pm</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;">Break 2 — 40min · first meal<br><em style="color:#8AAFC8;">Mood: 6/10 after eating</em></div>
+      </div>
+    </div>
+
+    <!-- CENTRE: Clock canvas -->
+    <div style="position:relative;flex-shrink:0;">
+      <canvas id="dualClock" width="500" height="500" style="display:block;"></canvas>
+    </div>
+
+    <!-- RIGHT: PM key moments -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="border-left:3px solid #D94030;padding-left:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#D94030;">4:30pm</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;">Break 3 — 30min<br>Almost done. <em style="color:#8AAFC8;">Sat: 7/10 · Sun: 8/10</em></div>
+      </div>
+      <div style="border-left:3px solid #72DFF0;padding-left:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#72DFF0;">~7:00pm</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;">Home · shower · cook · eat<br><em style="color:#4AABDF;">Sat: 7/10</em> &nbsp;<strong style="color:#72DFF0;">Sun: 9/10</strong></div>
+      </div>
+      <div style="border-left:3px solid #4AABDF;padding-left:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#4AABDF;">9:30pm</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;"><strong style="color:#4AABDF;">SAT in bed.</strong> Stressed.<br>Alarm in 8 hours. Mood: 3/10.</div>
+      </div>
+      <div style="border-left:3px solid #72DFF0;padding-left:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#72DFF0;">Midnight</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.5;"><strong style="color:#72DFF0;">SUN still up.</strong> Relaxed.<br>5 days free. Mood: 8/10.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM: Horizontal legend -->
+  <div style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:28px;padding-top:20px;border-top:1px solid var(--blue1);align-items:center;">
+    <span style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-right:8px;">Legend</span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="width:22px;height:11px;background:#141C2E;border:1px dashed #3A5A8A;border-radius:2px;display:inline-block;"></span><span style="color:var(--dim);">Sleep</span></span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="width:22px;height:11px;background:#C8A800;border-radius:2px;display:inline-block;"></span><span style="color:var(--dim);">Morning Prep</span></span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="width:22px;height:11px;background:#7B1E2A;border-radius:2px;display:inline-block;"></span><span style="color:var(--dim);">Work Shift <strong style="color:var(--white);">12h</strong></span></span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="width:22px;height:11px;background:#1A7A8A;border-radius:2px;display:inline-block;"></span><span style="color:var(--dim);">Breaks ×3</span></span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="width:22px;height:11px;background:#1A5C3A;border-radius:2px;display:inline-block;"></span><span style="color:var(--dim);">Commute</span></span>
+    <span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span style="width:22px;height:11px;background:#1A3A6A;border-radius:2px;display:inline-block;"></span><span style="color:var(--dim);">Home Time</span></span>
+    <span style="width:1px;height:22px;background:var(--blue1);display:inline-block;margin:0 4px;"></span>
+    <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-right:4px;">Mood Ring</span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:12px;">
+      <span style="width:22px;height:6px;background:linear-gradient(to right,#C0392B,#E8A838,#4AABDF,#72DFF0);border-radius:3px;display:inline-block;"></span>
+      <span style="color:var(--dim);">1–3 low → 4–5 → 6–7 → 8–10 high</span>
+    </span>
+    <span style="font-size:11px;color:var(--dim);">Inner ring = SAT · Outer ring = SUN · AM = inner band · PM = outer band</span>
+  </div>
+
+</section>
+
+<section class="sec">
+  <p class="sec-label">Section 02 · Full Picture</p>
+  <h2 class="sec-title">The Weekend in Hours</h2>
+
+  <div class="chart-row">
+    <svg class="donut" width="220" height="220" viewBox="0 0 200 200">
+      <!-- Background ring -->
+      <circle cx="100" cy="100" r="75" fill="none" stroke="#0D1520" stroke-width="32"/>
+      <!-- Work Shift (incl. breaks): 24h = 50% | arc=235.6pt | offset=0 -->
+      <circle cx="100" cy="100" r="75" fill="none" stroke="#8B1E2A" stroke-width="32"
+        stroke-dasharray="235.6 235.6" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+      <!-- Sleep: 13.3h = 27.8% | arc=131.0pt | offset=-235.6 -->
+      <circle cx="100" cy="100" r="75" fill="none" stroke="#1C3050" stroke-width="32"
+        stroke-dasharray="131.0 340.2" stroke-dashoffset="-235.6" transform="rotate(-90 100 100)"/>
+      <!-- Home Time: 7.5h = 15.6% | arc=73.6pt | offset=-366.6 -->
+      <circle cx="100" cy="100" r="75" fill="none" stroke="#1A4A80" stroke-width="32"
+        stroke-dasharray="73.6 397.6" stroke-dashoffset="-366.6" transform="rotate(-90 100 100)"/>
+      <!-- Morning & Routine: 3.16h = 6.6% | arc=31.0pt | offset=-440.2 -->
+      <circle cx="100" cy="100" r="75" fill="none" stroke="#B89000" stroke-width="32"
+        stroke-dasharray="31.0 440.2" stroke-dashoffset="-440.2" transform="rotate(-90 100 100)"/>
+      <text x="100" y="95" text-anchor="middle" font-family="Black Han Sans" font-size="26" fill="#F0F6FC">48h</text>
+      <text x="100" y="112" text-anchor="middle" font-family="Inconsolata" font-size="9" fill="#8AAFC8" letter-spacing="2">WEEKEND</text>
+    </svg>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:#8B1E2A;border:1px solid #D94030"></div><span class="leg-name">Work Shift <em style="font-size:11px;color:#8AAFC8;">(incl. breaks)</em></span><span class="leg-val">24h</span><span class="leg-pct">50%</span></div>
+      <div class="leg-item"><div class="leg-swatch" style="background:#1C3050"></div><span class="leg-name">Sleep <em style="font-size:11px;color:#8AAFC8;">Sat 7.9h · Sun 5.4h</em></span><span class="leg-val">13.3h</span><span class="leg-pct">28%</span></div>
+      <div class="leg-item"><div class="leg-swatch" style="background:#1A4A80;border:1px solid #3A7AAA"></div><span class="leg-name">Home Time</span><span class="leg-val">7.5h</span><span class="leg-pct">16%</span></div>
+      <div class="leg-item"><div class="leg-swatch" style="background:#B89000"></div><span class="leg-name">Morning &amp; Routine <em style="font-size:11px;color:#8AAFC8;">(prep+commute+wind-down)</em></span><span class="leg-val">3.2h</span><span class="leg-pct">7%</span></div>
+      <div style="margin-top:12px; padding-top:14px; border-top:1px solid var(--blue1)">
+        <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Free time (home)</div>
+        <div style="font-family:'Black Han Sans';font-size:28px;color:var(--ice);line-height:1.1">2.5h <span style="color:var(--sat);font-size:16px;">SAT</span></div>
+        <div style="font-family:'Black Han Sans';font-size:28px;color:var(--ice);line-height:1.1">5.0h <span style="color:var(--sun);font-size:16px;">SUN</span></div>
+        <div style="font-size:12px;color:var(--dim);margin-top:4px">home time after 7pm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 3: SPLIT BAR ── -->
+<section class="sec" style="background:var(--bg2)">
+  <p class="sec-label">Section 03 · The Trade-Off</p>
+  <h2 class="sec-title">Work vs Free Time (Waking Hours)</h2>
+
+  <div class="split-bar">
+    <div class="split-work" style="width:78%">⚙ &nbsp;78%</div>
+    <div class="split-free">22%</div>
+  </div>
+  <div class="split-meta">
+    <span>Work + Commute — 12.33h/day</span>
+    <span>Home time — Sat 2.5h · Sun 5.0h</span>
+  </div>
+  <div class="split-note">
+    On Saturday that's <strong>2.5h</strong> (7pm–9:30pm). On Sunday <strong>5.0h</strong> (7pm–midnight). Of that, roughly <strong>40 minutes</strong> cooking and eating, <strong>10 minutes</strong> showering. Saturday real unstructured time: <strong>under 2 hours.</strong>
+  </div>
+</section>
+
+<!-- ── SECTION 4: MOOD CHART ── -->
+<section class="sec">
+  <p class="sec-label">Section 04 · Emotional Data</p>
+  <h2 class="sec-title">Mood & Energy — Across the Day</h2>
+  <p style="font-size:14px;color:var(--dim);margin-bottom:24px;line-height:1.7;">Self-rated 1–10 at each key transition. The shaded band marks the 12-hour work shift. Watch how Saturday collapses at bedtime while Sunday stays high.</p>
+
+  <div class="mood-wrap">
+    <canvas id="moodChart" height="260"></canvas>
+  </div>
+
+  <!-- Bold legend -->
+  <div style="display:flex;gap:32px;margin-top:20px;align-items:center;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="display:inline-block;width:36px;height:4px;background:#D94030;border-radius:2px;"></span>
+      <span style="font-size:15px;font-weight:700;color:#D94030;letter-spacing:2px;text-transform:uppercase;">Saturday</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="display:inline-block;width:36px;height:4px;background:#72DFF0;border-radius:2px;border-top:none;" id="sunLegLine"></span>
+      <span style="font-size:15px;font-weight:700;color:#72DFF0;letter-spacing:2px;text-transform:uppercase;">Sunday</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-left:8px;">
+      <span style="display:inline-block;width:20px;height:12px;background:rgba(123,30,42,0.25);border:1px solid rgba(217,64,48,0.3);border-radius:2px;"></span>
+      <span style="font-size:13px;color:var(--dim);">Work shift band</span>
+    </div>
+  </div>
+
+  <!-- SAT NIGHT NOTE -->
+  <div class="night-note">
+    <div class="night-card">
+      <p class="nc-day">Saturday Night → Bed 9:30pm</p>
+      <p>"I tell myself it's just one more day. Stressed, but I manage it. The alarm tomorrow already exists in my head."</p>
+    </div>
+    <div class="night-card">
+      <p class="nc-day" style="color:var(--sun)">Sunday Night → Bed ~Midnight</p>
+      <p>"More relaxed. Staying up later feels earned. 5 days off. That matters more than I can explain in numbers."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 5: BURDEN SCALES ── -->
+<section class="sec" style="background:var(--bg2)">
+  <p class="sec-label">Section 05 · Beyond Numbers</p>
+  <h2 class="sec-title">What the Shift Actually Does</h2>
+
+  <div class="burden-row">
+    <div>
+      <p style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:20px">Start of shift → End of shift</p>
+    </div>
+
+    <!-- Physical tiredness -->
+    <div class="burden-item">
+      <span class="burden-name">Physical Tiredness</span>
+      <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+        <div style="font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:2px">START &nbsp;2/10</div>
+        <div class="burden-dots" id="bdPhysStart"></div>
+        <div style="font-size:11px;color:var(--dim);letter-spacing:2px;margin-top:6px;margin-bottom:2px">END &nbsp;8/10</div>
+        <div class="burden-dots" id="bdPhysEnd"></div>
+      </div>
+    </div>
+
+    <div class="burden-item" style="margin-top:12px">
+      <span class="burden-name">Mental Alertness</span>
+      <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+        <div style="font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:2px">START &nbsp;5/10</div>
+        <div class="burden-dots" id="bdMentStart"></div>
+        <div style="font-size:11px;color:var(--dim);letter-spacing:2px;margin-top:6px;margin-bottom:2px">END &nbsp;2/10</div>
+        <div class="burden-dots" id="bdMentEnd"></div>
+      </div>
+    </div>
+
+    <div class="burden-item" style="margin-top:12px">
+      <span class="burden-name">Motivation</span>
+      <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+        <div style="font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:2px">START &nbsp;4/10</div>
+        <div class="burden-dots" id="bdMotStart"></div>
+        <div style="font-size:11px;color:var(--dim);letter-spacing:2px;margin-top:6px;margin-bottom:2px">END &nbsp;1/10</div>
+        <div class="burden-dots" id="bdMotEnd"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 6: BEST/WORST ── -->
+<section class="sec">
+  <p class="sec-label">Section 06 · The Poles</p>
+  <h2 class="sec-title">The Best and Worst Moments</h2>
+
+  <div class="moments-grid">
+    <div class="moment-card worst">
+      <div class="moment-time">6:45</div>
+      <div class="moment-day">Saturday Morning · Clocking In</div>
+      <div class="moment-desc">The week starts here for most people. For me, the weekend starts here. Clocking in knowing I'll do this exact thing again tomorrow. Mood: 4/10.</div>
+    </div>
+    <div class="moment-card best">
+      <div class="moment-time">6:50</div>
+      <div class="moment-day">Sunday Evening · Just Got Home</div>
+      <div class="moment-desc">The best moment of the entire weekend. Shift done. No alarm tomorrow. The shower hits different. Five days of freedom begin now. Mood: 9/10.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 7: HIDDEN COSTS ── -->
+<section class="sec" style="background:var(--bg2)">
+  <p class="sec-label">Section 07 · Analytical Reflection</p>
+  <h2 class="sec-title">What Doesn't Show in the Hours</h2>
+
+  <div class="costs-grid">
+    <div class="cost-card">
+      <div class="cost-icon">⏰</div>
+      <div class="cost-num">5:25</div>
+      <div class="cost-unit">AM · Both Days</div>
+      <div class="cost-desc">The alarm doesn't change on Sunday. The body gets no lie-in, no recovery morning.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-icon">🥊</div>
+      <div class="cost-num">0</div>
+      <div class="cost-unit">Training Sessions</div>
+      <div class="cost-desc">Boxing, running, gym — the things I actually value — don't get any space across the entire weekend.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-icon">🍽️</div>
+      <div class="cost-num">1pm</div>
+      <div class="cost-unit">First Meal</div>
+      <div class="cost-desc">Nearly 8 hours awake before eating. Energy already low before the body gets any fuel.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-icon">🔁</div>
+      <div class="cost-num">= </div>
+      <div class="cost-unit">Sat Equals Sun</div>
+      <div class="cost-desc">Both days are structurally identical. No variation, no leisure, no spontaneity in the weekend routine.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <p class="footer-quote">
+    "Saturday 6:45am is the worst.<br>
+    <em>Sunday 6:45pm is everything."</em>
+  </p>
+  <p class="footer-sig">Maliq · Weekend Data · Dark &amp; Moody · Consuming</p>
+</footer>
+
+<script>
+// ── DUAL-RING 24h CLOCK ──
+(function() {
+  const canvas = document.getElementById('dualClock');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const S = 500;
+  canvas.width = S * dpr; canvas.height = S * dpr;
+  canvas.style.width = S + 'px'; canvas.style.height = S + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const cx = S / 2, cy = S / 2;
+
+  // Ring dimensions — scaled for 420px
+  const satInner = 95,  satOuter = 152;
+  const sunInner = 157, sunOuter = 210;
+  const gap = 3;
+
+  // ── KEY DESIGN DECISION ──
+  // We use a 12-hour clock face (like a real wall clock).
+  // The face shows two laps: AM (midnight→noon) and PM (noon→midnight).
+  // So every "hour" position on the clock is occupied TWICE per day.
+  // We split each ring into an AM arc (inner half of ring depth) and 
+  // PM arc (outer half) so both laps are visible on the same clock face.
+  // This way: 12 at top, 3 on the right, 6 at the bottom, 9 on the left —
+  // exactly like a real clock. You instantly feel "that's 5am" or "that's noon".
+
+  // hour (0-24) → angle using 12h clock face: h%12 maps to full rotation
+  function ha(h) { return (h % 12) / 12 * Math.PI * 2 - Math.PI / 2; }
+
+  // For the dual-ring split between AM/PM within each day ring:
+  // AM hours (0-12): drawn in the inner band of the ring
+  // PM hours (12-24): drawn in the outer band of the ring
+  // This gives AM/PM depth within each ring.
+
+  function segAMPM(h1, h2, rIn, rMid, rOut, fill) {
+    // Split segment across AM/PM boundary if needed
+    function drawBand(start, end, bandIn, bandOut) {
+      if (end <= start) return;
+      const a1 = ha(start), a2 = ha(end);
+      // handle wrap: if end crosses 12 in same phase, just draw
+      const pad = 0.006;
+      ctx.beginPath();
+      ctx.arc(cx, cy, bandOut - 1, a1 + pad, a2 - pad);
+      ctx.arc(cx, cy, bandIn  + 1, a2 - pad, a1 + pad, true);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+
+    const amIn = rIn, amOut = rMid;  // AM = inner band
+    const pmIn = rMid, pmOut = rOut; // PM = outer band
+
+    // Clamp to AM portion (0-12)
+    const amStart = Math.max(0, Math.min(12, h1));
+    const amEnd   = Math.max(0, Math.min(12, h2));
+    if (amEnd > amStart) drawBand(amStart, amEnd, amIn, amOut);
+
+    // Clamp to PM portion (12-24), mapped back to 0-12 for angle
+    const pmStart = Math.max(12, Math.min(24, h1)) - 12;
+    const pmEnd   = Math.max(12, Math.min(24, h2)) - 12;
+    if (pmEnd > pmStart) drawBand(pmStart, pmEnd, pmIn, pmOut);
+  }
+
+  // Activity colours
+  const C = {
+    sleep:   '#141C2E',
+    prep:    '#C8A800',  // bright gold — morning 5:25am
+    comm:    '#1A5C3A',  // dark green
+    work:    '#7B1E2A',  // deep crimson
+    brk:     '#1A7A8A',  // teal — all 3 breaks (30min, 40min, 30min)
+    mealBrk: '#1A7A8A',  // same teal — 1pm break is still just a break
+    home:    '#1A3A6A',  // cool blue
+    bed:     '#070A12',  // near black
+  };
+
+  // Segment data [h_start, h_end, color]
+  const satDef = [
+    [0, 5.417, C.sleep], [5.417, 6.0, C.prep], [6.0, 6.75, C.comm],
+    [6.75, 9.25, C.work], [9.25, 9.75, C.brk], [9.75, 13.0, C.work],
+    [13.0, 13.667, C.mealBrk], [13.667, 16.5, C.work],
+    [16.5, 17.0, C.brk], [17.0, 18.833, C.work],
+    [18.833, 19.0, C.comm], [19.0, 21.5, C.home], [21.5, 24, C.bed],
+  ];
+  const sunDef = [
+    [0, 5.417, C.sleep], [5.417, 6.0, C.prep], [6.0, 6.75, C.comm],
+    [6.75, 9.25, C.work], [9.25, 9.75, C.brk], [9.75, 13.0, C.work],
+    [13.0, 13.667, C.mealBrk], [13.667, 16.5, C.work],
+    [16.5, 17.0, C.brk], [17.0, 18.833, C.work],
+    [18.833, 19.0, C.comm], [19.0, 24, C.home],
+  ];
+
+  // ── Draw background rings ──
+  function ringBG(rIn, rOut, fill) {
+    ctx.beginPath();
+    ctx.arc(cx,cy,rOut,0,Math.PI*2);
+    ctx.arc(cx,cy,rIn,0,Math.PI*2,true);
+    ctx.fillStyle=fill; ctx.fill();
+  }
+  ringBG(satInner, satOuter, '#0A1020');
+  ringBG(sunInner, sunOuter, '#080E1A');
+
+  // ── Draw all segments using the AM/PM split ──
+  const satMid = (satInner + satOuter) / 2;
+  const sunMid = (sunInner + sunOuter) / 2;
+  satDef.forEach(([h1,h2,c]) => segAMPM(h1,h2, satInner+gap, satMid, satOuter-gap, c));
+  sunDef.forEach(([h1,h2,c]) => segAMPM(h1,h2, sunInner+gap, sunMid, sunOuter-gap, c));
+
+  // ── AM/PM midline dividers ──
+  [satInner, satOuter, sunInner, sunOuter].forEach(r => {
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle='rgba(8,12,20,0.85)'; ctx.lineWidth=2; ctx.stroke();
+  });
+  // Dashed midline
+  [[satInner,satOuter],[sunInner,sunOuter]].forEach(([rIn,rOut]) => {
+    const rM = (rIn+rOut)/2;
+    ctx.beginPath(); ctx.arc(cx,cy,rM,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+    ctx.setLineDash([3,5]); ctx.stroke(); ctx.setLineDash([]);
+  });
+
+  // ── CLOCK FACE NUMBERS: 12, 3, 6, 9 like a real clock ──
+  const numR = satInner - 14;
+  for (let h = 1; h <= 12; h++) {
+    const a = (h/12)*Math.PI*2 - Math.PI/2;
+    const isCardinal = h % 3 === 0;
+    const t1 = satInner - 2, t2 = satInner - (isCardinal ? 9 : 5);
+    ctx.beginPath();
+    ctx.moveTo(cx + t1*Math.cos(a), cy + t1*Math.sin(a));
+    ctx.lineTo(cx + t2*Math.cos(a), cy + t2*Math.sin(a));
+    ctx.strokeStyle = isCardinal ? '#6DCFED' : '#2A4A6A';
+    ctx.lineWidth = isCardinal ? 2 : 1;
+    ctx.stroke();
+    if (isCardinal) {
+      ctx.fillStyle = '#6DCFED';
+      ctx.font = 'bold 13px Inconsolata, monospace'; /* WAS 12px */
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(h), cx + numR*Math.cos(a), cy + numR*Math.sin(a));
+    }
+  }
+
+  // ── Outer bezel ticks ──
+  for (let m = 0; m < 60; m++) {
+    const a = (m/60)*Math.PI*2 - Math.PI/2;
+    const isHour = m % 5 === 0;
+    const r1 = sunOuter + 32;
+    const r2 = sunOuter + (isHour ? 38 : 34);
+    ctx.beginPath();
+    ctx.moveTo(cx + r1*Math.cos(a), cy + r1*Math.sin(a));
+    ctx.lineTo(cx + r2*Math.cos(a), cy + r2*Math.sin(a));
+    ctx.strokeStyle = isHour ? '#1A3A50' : '#0E1A26';
+    ctx.lineWidth = isHour ? 1.2 : 0.6;
+    ctx.stroke();
+  }
+
+  // ── AM / PM arc labels — bigger and brighter ──
+  function arcLabel(text, r, midAngle, color, fontSize) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = `bold ${fontSize}px Inconsolata, monospace`;
+    const spacing = 0.20;
+    text.split('').forEach((ch, i) => {
+      const a = midAngle + (i - (text.length-1)/2) * spacing;
+      ctx.save();
+      ctx.translate(cx + r*Math.cos(a), cy + r*Math.sin(a));
+      ctx.rotate(a + Math.PI/2);
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(ch, 0, 0);
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+  // AM/PM noted in legend below clock
+  // ── MOOD RINGS — SAT (inner) and SUN (outer) colored arcs showing mood score ──
+  // Color scale: red≤3, amber≤5, blue≤7, cyan≥8
+  const MOOD_SAT_IN  = sunOuter + 5;
+  const MOOD_SAT_OUT = sunOuter + 15;
+  const MOOD_SUN_IN  = sunOuter + 18;
+  const MOOD_SUN_OUT = sunOuter + 28;
+
+  function moodHue(score) {
+    if (score <= 3) return '#C0392B';  // deep red — low
+    if (score <= 5) return '#E8A838';  // amber — mid
+    if (score <= 7) return '#4AABDF';  // blue — good
+    return '#72DFF0';                   // bright cyan — great
+  }
+
+  // [h_start, h_end, sat_score, sun_score] — null = sleeping, no arc
+  const moodPeriods = [
+    [0,      5.417, null, null],  // pre-wake sleep
+    [5.417,  6.75,  5,    5   ],  // wake → clock-in
+    [6.75,   9.25,  4,    4   ],  // early shift
+    [9.25,   13.0,  3,    3   ],  // lowest point (mid shift)
+    [13.0,   16.5,  6,    6   ],  // post-meal recovery
+    [16.5,   19.0,  7,    8   ],  // end of shift
+    [19.0,   21.5,  7,    9   ],  // home time (both days)
+    [21.5,   24.0,  3,    9   ],  // Sat in bed stressed · Sun still up/free
+  ];
+
+  // Background for mood rings
+  ringBG(MOOD_SAT_IN, MOOD_SAT_OUT, '#090D18');
+  ringBG(MOOD_SUN_IN, MOOD_SUN_OUT, '#070A14');
+
+  function drawMoodRing(periods, rIn, rOut, scoreIdx) {
+    const rMid = (rIn + rOut) / 2;
+    const pad  = 0.014;
+
+    function moodBand(h1, h2, bIn, bOut, score) {
+      if (score === null || h2 <= h1) return;
+      const a1 = ha(h1), a2 = ha(h2);
+      ctx.beginPath();
+      ctx.arc(cx, cy, bOut - 0.5, a1 + pad, a2 - pad);
+      ctx.arc(cx, cy, bIn  + 0.5, a2 - pad, a1 + pad, true);
+      ctx.closePath();
+      ctx.fillStyle = moodHue(score);
+      ctx.globalAlpha = 0.90;
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+    }
+
+    periods.forEach(([h1, h2, ...sc]) => {
+      const score = sc[scoreIdx];
+      // AM band (0→12): inner half of mood ring
+      const amS = Math.max(0,  Math.min(12, h1));
+      const amE = Math.max(0,  Math.min(12, h2));
+      if (amE > amS) moodBand(amS, amE, rIn, rMid, score);
+      // PM band (12→24): outer half of mood ring
+      const pmS = Math.max(12, Math.min(24, h1)) - 12;
+      const pmE = Math.max(12, Math.min(24, h2)) - 12;
+      if (pmE > pmS) moodBand(pmS, pmE, rMid, rOut, score);
+    });
+
+    // Dashed AM/PM divider within mood ring
+    ctx.beginPath(); ctx.arc(cx, cy, rMid, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(8,12,20,0.7)'; ctx.lineWidth = 1;
+    ctx.setLineDash([2, 5]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  drawMoodRing(moodPeriods, MOOD_SAT_IN, MOOD_SAT_OUT, 0); // Saturday
+  drawMoodRing(moodPeriods, MOOD_SUN_IN, MOOD_SUN_OUT, 1); // Sunday
+
+  // Divider between the two mood rings
+  ctx.beginPath(); ctx.arc(cx, cy, MOOD_SAT_OUT + 1.5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#080C14'; ctx.lineWidth = 3.5; ctx.stroke();
+
+  // SAT / SUN labels on mood rings (at 10:30 position = top-left)
+  function moodRingLabel(text, rMid, color) {
+    const a = ha(10.5);
+    ctx.save();
+    ctx.translate(cx + rMid * Math.cos(a), cy + rMid * Math.sin(a));
+    ctx.rotate(a + Math.PI / 2);
+    ctx.fillStyle = color;
+    ctx.font = 'bold 7px Inconsolata, monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  }
+  moodRingLabel('SAT', (MOOD_SAT_IN + MOOD_SAT_OUT) / 2, 'rgba(74,171,223,0.85)');
+  moodRingLabel('SUN', (MOOD_SUN_IN + MOOD_SUN_OUT) / 2, 'rgba(114,223,240,0.85)');
+
+  // Score labels at key positions — bedtime scores and peak score
+  function moodLabel(h_clock, rMid, score, color) {
+    const a = ha(h_clock);
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = 'bold 8px Inconsolata, monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(score), cx + rMid * Math.cos(a), cy + rMid * Math.sin(a));
+    ctx.restore();
+  }
+  // Sat bedtime 3/10 at 9:30pm (PM: 9.5h on clock = ha(9.5))
+  moodLabel(9.5, (MOOD_SAT_IN + MOOD_SAT_OUT) / 2, 3, '#E55A4A');
+  // Sun peak 9/10 at ~7pm (PM: 7h = ha(7))
+  moodLabel(7.0, (MOOD_SUN_IN + MOOD_SUN_OUT) / 2, 9, '#8EEEF8');
+
+
+  // ── SAT / SUN ring labels — bold and bright ──
+  function ringTag(text, rMid, color) {
+    const a = ha(10.5);
+    ctx.fillStyle = color;
+    ctx.font = 'bold 11px Inconsolata, monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, cx + rMid*Math.cos(a), cy + rMid*Math.sin(a));
+  }
+  ringTag('SAT', (satInner+satOuter)/2, '#4AABDF');
+  ringTag('SUN', (sunInner+sunOuter)/2, '#72DFF0');
+
+  // ── Centre: real clock face with hands set to 5:25 ──
+  ctx.beginPath(); ctx.arc(cx,cy,satInner-gap,0,Math.PI*2);
+  ctx.fillStyle='#06080F'; ctx.fill();
+  ctx.strokeStyle='#1A3050'; ctx.lineWidth=1; ctx.stroke();
+
+  // Minor tick marks
+  for (let m = 0; m < 60; m++) {
+    const a = (m/60)*Math.PI*2 - Math.PI/2;
+    const rO = satInner - gap - 1;
+    const rI = rO - (m%5===0 ? 6 : 3);
+    ctx.beginPath();
+    ctx.moveTo(cx+rO*Math.cos(a), cy+rO*Math.sin(a));
+    ctx.lineTo(cx+rI*Math.cos(a), cy+rI*Math.sin(a));
+    ctx.strokeStyle = m%5===0 ? '#2A4A6A' : '#141E2A';
+    ctx.lineWidth = m%5===0 ? 1.2 : 0.6;
+    ctx.stroke();
+  }
+
+  // Clock hands — 5:25am
+  function hand(deg, len, w, col) {
+    const a = (deg - 90) * Math.PI/180;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx + len*Math.cos(a), cy + len*Math.sin(a));
+    ctx.strokeStyle=col; ctx.lineWidth=w; ctx.lineCap='round'; ctx.stroke();
+  }
+  hand(162.5, 38, 3.5, '#D94030'); // hour
+  hand(150,   56, 2,   '#F0F6FC'); // minute
+  hand(150,   60, 1,   '#D94030'); // second
+
+  // Centre pivot
+  ctx.beginPath(); ctx.arc(cx,cy,4,0,Math.PI*2);
+  ctx.fillStyle='#D94030'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,2,0,Math.PI*2);
+  ctx.fillStyle='#F0F6FC'; ctx.fill();
+
+  // Centre label — bigger and brighter
+  ctx.fillStyle='#5A8AAA';
+  ctx.font='bold 9px Inconsolata, monospace';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('5:25am', cx, cy+18);
+
+})();
+
+// ── MOOD CHART ──
+(function() {
+  const canvas = document.getElementById('moodChart');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 760;
+  const H = 260;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const labels = ['5:25am', '6:45am', '9:15am', '1:00pm', '4:30pm', '~7:00pm', 'Bedtime'];
+  const sat = [5, 4, 3, 6, 7, 7, 3];
+  const sun = [5, 4, 3, 6, 8, 9, 8];
+
+  const SAT_COL = '#D94030'; // red — same as work shift
+  const SUN_COL = '#72DFF0'; // bright cyan
+  const SAT_FILL = 'rgba(217,64,48,0.12)';
+  const SUN_FILL = 'rgba(114,223,240,0.08)';
+
+  const pad = { l: 52, r: 24, t: 28, b: 48 };
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+
+  function xp(i) { return pad.l + (i / (labels.length - 1)) * cw; }
+  function yp(v) { return pad.t + ch - ((v / 10) * ch); }
+
+  // ── Horizontal grid lines ──
+  for (let g = 1; g <= 10; g++) {
+    const isMaj = g % 2 === 0;
+    ctx.beginPath();
+    ctx.strokeStyle = isMaj ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = isMaj ? 1 : 0.5;
+    ctx.moveTo(pad.l, yp(g)); ctx.lineTo(pad.l + cw, yp(g));
+    ctx.stroke();
+    if (isMaj) {
+      ctx.fillStyle = '#6A8AA8';
+      ctx.font = 'bold 11px Inconsolata, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(g, pad.l - 10, yp(g) + 4);
+    }
+  }
+
+  // Y axis label
+  ctx.save();
+  ctx.fillStyle = '#6A8AA8';
+  ctx.font = '10px Inconsolata, monospace';
+  ctx.textAlign = 'center';
+  ctx.translate(14, pad.t + ch / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('MOOD / ENERGY', 0, 0);
+  ctx.restore();
+
+  // ── Work shift band ──
+  const wx1 = xp(1), wx2 = xp(5);
+  ctx.fillStyle = 'rgba(123,30,42,0.2)';
+  ctx.fillRect(wx1, pad.t, wx2 - wx1, ch);
+  // Top border on work band
+  ctx.beginPath();
+  ctx.moveTo(wx1, pad.t); ctx.lineTo(wx2, pad.t);
+  ctx.strokeStyle = 'rgba(217,64,48,0.25)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  // Work shift label
+  ctx.fillStyle = 'rgba(217,64,48,0.5)';
+  ctx.font = 'bold 11px Inconsolata, monospace';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '3px';
+  ctx.fillText('← 12-HOUR WORK SHIFT →', (wx1 + wx2) / 2, pad.t + 14);
+
+  // ── Vertical dividers at each time point ──
+  labels.forEach((_, i) => {
+    ctx.beginPath();
+    ctx.moveTo(xp(i), pad.t); ctx.lineTo(xp(i), pad.t + ch);
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // ── Area fills ──
+  function fillArea(data, color) {
+    ctx.beginPath();
+    data.forEach((v, i) => i === 0 ? ctx.moveTo(xp(i), yp(v)) : ctx.lineTo(xp(i), yp(v)));
+    ctx.lineTo(xp(data.length - 1), pad.t + ch);
+    ctx.lineTo(xp(0), pad.t + ch);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+  fillArea(sat, SAT_FILL);
+  fillArea(sun, SUN_FILL);
+
+  // ── Draw line with dots and ALL value labels ──
+  function drawLine(data, color, dash) {
+    // Line
+    ctx.beginPath();
+    ctx.setLineDash(dash ? [7, 5] : []);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    data.forEach((v, i) => i === 0 ? ctx.moveTo(xp(i), yp(v)) : ctx.lineTo(xp(i), yp(v)));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Dots + labels on every point
+    data.forEach((v, i) => {
+      // Outer glow dot
+      ctx.beginPath();
+      ctx.arc(xp(i), yp(v), 7, 0, Math.PI * 2);
+      ctx.fillStyle = color.replace(')', ', 0.2)').replace('rgb', 'rgba');
+      ctx.fill();
+      // Main dot
+      ctx.beginPath();
+      ctx.arc(xp(i), yp(v), 5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      // Centre hole
+      ctx.beginPath();
+      ctx.arc(xp(i), yp(v), 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0D1520';
+      ctx.fill();
+      // Value label — above the dot, offset so the two lines don't clash
+      const offset = dash ? -18 : -14;
+      ctx.fillStyle = color;
+      ctx.font = 'bold 13px Inconsolata, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(String(v), xp(i), yp(v) + offset);
+    });
+  }
+
+  // Draw SAT first (red, solid), then SUN on top (cyan, dashed)
+  drawLine(sat, SAT_COL, false);
+  drawLine(sun, SUN_COL, true);
+
+  // ── Bedtime divergence callout ──
+  const bx = xp(6);
+  const satY = yp(sat[6]);
+  const sunY = yp(sun[6]);
+  // Vertical bracket between the two bedtime scores
+  ctx.beginPath();
+  ctx.moveTo(bx + 22, satY); ctx.lineTo(bx + 22, sunY);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#8AAFC8';
+  ctx.font = '11px Inconsolata, monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('5pt gap', bx + 26, (satY + sunY) / 2);
+
+  // ── X axis labels ──
+  labels.forEach((l, i) => {
+    ctx.fillStyle = '#8AAFC8';
+    ctx.font = '12px Inconsolata, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(l, xp(i), H - pad.b + 10);
+  });
+
+  // Sunday legend line — make it dashed via canvas to match the chart
+  const ll = document.getElementById('sunLegLine');
+  if (ll) {
+    ll.style.background = 'none';
+    ll.style.borderTop = '4px dashed #72DFF0';
+    ll.style.height = '4px';
+  }
+
+})();
+
+// ── BURDEN DOTS ──
+function makeDots(id, filled, colorClass) {
+  const el = document.getElementById(id);
+  for (let i = 1; i <= 10; i++) {
+    const d = document.createElement('div');
+    d.className = 'bdot' + (i <= filled ? ` on ${colorClass}` : '');
+    el.appendChild(d);
+  }
+}
+
+makeDots('bdPhysStart', 2, '');
+makeDots('bdPhysEnd',   8, 'red');
+makeDots('bdMentStart', 5, '');
+makeDots('bdMentEnd',   2, '');
+makeDots('bdMotStart',  4, 'amber');
+makeDots('bdMotEnd',    1, 'red');
+</script>
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MALIQ — Dynamic Weekend Visualisation</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700&family=Inconsolata:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080C14; --bg2:#0D1520; --navy:#0A1628;
+  --blue1:#2A4A6C; --ice:#6DCFED; --frost:#C8E8F4;
+  --white:#F0F6FC; --dim:#8AAFC8; --red:#D94030;
+  --amber:#C8A800; --teal:#1A7A8A; --green:#1A5C3A;
+  --home:#1A3A6A; --sleep:#141C2E;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--white);font-family:'Inconsolata',monospace;min-height:100vh;}
+
+/* ── HEADER ── */
+.app-header{background:var(--navy);border-bottom:3px solid var(--ice);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.app-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;letter-spacing:2px;}
+.app-title span{color:var(--ice);}
+.app-subtitle{font-size:11px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:var(--bg);border-bottom:1px solid var(--blue1);padding:0 32px;}
+.tab{padding:12px 20px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-family:'Inconsolata',monospace;}
+.tab:hover{color:var(--frost);}
+.tab.active{color:var(--ice);border-bottom-color:var(--ice);}
+
+/* ── CONTROLS ── */
+.controls{display:flex;gap:12px;align-items:center;padding:16px 32px;background:var(--bg2);border-bottom:1px solid var(--blue1);flex-wrap:wrap;}
+.ctrl-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);}
+.toggle-btn{padding:7px 16px;border:1px solid var(--blue1);border-radius:4px;background:transparent;color:var(--dim);font-family:'Inconsolata',monospace;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.toggle-btn:hover{border-color:var(--ice);color:var(--ice);}
+.toggle-btn.active{background:var(--ice);color:var(--bg);border-color:var(--ice);font-weight:600;}
+.divider{width:1px;height:28px;background:var(--blue1);}
+
+/* ── MAIN CONTENT ── */
+.view{display:none;padding:28px 32px;} 
+.view.active{display:block;}
+
+/* ── TOOLTIP ── */
+.tooltip{position:fixed;background:var(--navy);border:1px solid var(--ice);border-radius:6px;padding:10px 14px;font-size:12px;pointer-events:none;z-index:999;opacity:0;transition:opacity .15s;max-width:200px;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+.tooltip-time{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:var(--ice);margin-bottom:4px;}
+.tooltip-activity{font-size:11px;color:var(--dim);margin-bottom:3px;}
+.tooltip-mood{font-size:11px;color:var(--frost);}
+
+/* ── VIEW 1: TIME BREAKDOWN ── */
+.breakdown-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;}
+.breakdown-card{background:var(--bg2);border:1px solid var(--blue1);border-radius:8px;padding:22px;}
+.bc-title{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:16px;}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.bar-label{font-size:12px;color:var(--dim);width:120px;flex-shrink:0;}
+.bar-track{flex:1;height:20px;background:var(--bg);border-radius:3px;overflow:hidden;cursor:pointer;position:relative;}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s ease,opacity .2s;}
+.bar-fill:hover{opacity:.85;}
+.bar-val{font-size:13px;font-weight:600;color:var(--white);width:44px;text-align:right;flex-shrink:0;}
+.bar-pct{font-size:10px;color:#6DCFED;width:100px;flex-shrink:0;text-align:right;}
+
+/* ── VIEW 2: MOOD EXPLORER ── */
+.mood-container{background:var(--bg2);border:1px solid var(--blue1);border-radius:8px;padding:24px;margin-bottom:24px;}
+.mood-canvas-wrap{position:relative;}
+canvas.mood-c{width:100%;display:block;}
+.mood-controls-row{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.mood-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;}
+.mood-stat{background:var(--bg);border:1px solid var(--blue1);border-radius:6px;padding:14px;text-align:center;}
+.mood-stat-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:32px;color:var(--ice);}
+.mood-stat-label{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+
+/* ── VIEW 3: ACTIVITY FILTER ── */
+.activity-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.act-card{background:var(--bg2);border:1px solid var(--blue1);border-radius:8px;padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.act-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;}
+.act-card:hover{border-color:var(--ice);}
+.act-card.selected{border-color:var(--ice);background:rgba(109,207,237,0.06);}
+.act-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;margin-bottom:4px;}
+.act-hours{font-size:13px;color:var(--dim);}
+.act-pct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:36px;color:var(--ice);position:absolute;right:16px;top:16px;opacity:.3;}
+.act-detail{background:var(--bg2);border:1px solid var(--blue1);border-radius:8px;padding:24px;display:none;}
+.act-detail.visible{display:block;}
+.detail-bar-row{display:flex;align-items:center;gap:16px;margin-bottom:12px;}
+.detail-day-label{font-size:12px;color:var(--dim);width:80px;flex-shrink:0;}
+
+/* ── VIEW 4: COMPARISON ── */
+.compare-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.compare-card{background:var(--bg2);border-radius:8px;padding:20px;}
+.compare-card.sat{border:1px solid #2A5A80;border-left:4px solid #4AABDF;}
+.compare-card.sun{border:1px solid #2A6A80;border-left:4px solid #72DFF0;}
+.compare-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;margin-bottom:14px;}
+.compare-title.sat{color:#4AABDF;}
+.compare-title.sun{color:#72DFF0;}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.metric-label{font-size:12px;color:var(--dim);}
+.metric-val{font-size:14px;font-weight:600;color:var(--white);}
+.metric-val.highlight-red{color:var(--red);}
+.metric-val.highlight-green{color:var(--teal);}
+
+/* ── STAT PILL ── */
+.stat-pill{display:inline-flex;align-items:center;gap:8px;background:var(--navy);border:1px solid var(--blue1);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--dim);}
+.stat-pill strong{color:var(--white);}
+
+/* ── SECTION TITLE ── */
+.view-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;letter-spacing:2px;margin-bottom:6px;}
+.view-sub{font-size:13px;color:var(--dim);margin-bottom:24px;line-height:1.6;}
+
+/* ── FOOTER ── */
+.app-footer{border-top:1px solid var(--blue1);padding:16px 32px;font-size:10px;color:var(--dim);letter-spacing:2px;text-align:center;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-time" id="tt-time"></div>
+  <div class="tooltip-activity" id="tt-act"></div>
+  <div class="tooltip-mood" id="tt-mood"></div>
+</div>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div>
+    <div class="app-title">MALIQ — <span>WEEKEND CONSUMED</span></div>
+    <div class="app-subtitle">Dynamic Data Visualisation · Personal Weekend Analysis</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <span class="stat-pill">⏰ <strong>5:25am</strong> alarm both days</span>
+    <span class="stat-pill">⚙ <strong>24h</strong> shift window <span style="opacity:.5;font-size:10px;">/ 20.67h actual</span></span>
+    <span class="stat-pill">🏠 <strong>2.5h</strong> home time Sat · <strong>5h</strong> Sun</span>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs">
+  <div class="tab active" onclick="switchTab('breakdown')">Time Breakdown</div>
+  <div class="tab" onclick="switchTab('mood')">Mood Explorer</div>
+  <div class="tab" onclick="switchTab('activity')">Activity Filter</div>
+  <div class="tab" onclick="switchTab('compare')">Sat vs Sun</div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     VIEW 1: TIME BREAKDOWN
+══════════════════════════════════════ -->
+<div class="view active" id="view-breakdown">
+  <div class="view-title">How the Weekend Was Spent</div>
+  <div class="view-sub">All percentages are out of the same total — everything adds to <strong>100%</strong>. Sleep is included as part of the day. Actual work = 12h shift − 1.67h breaks = <strong>10.33h</strong></div>
+
+  <div class="controls">
+    <span class="ctrl-label">Show as:</span>
+    <button class="toggle-btn active" onclick="setMetric('hours',this)">Hours</button>
+    <button class="toggle-btn" onclick="setMetric('pct',this)">% Share</button>
+    <div class="divider"></div>
+    <span class="ctrl-label">Day:</span>
+    <button class="toggle-btn active" onclick="setDay('both',this)">Both</button>
+    <button class="toggle-btn" onclick="setDay('sat',this)">Saturday</button>
+    <button class="toggle-btn" onclick="setDay('sun',this)">Sunday</button>
+  </div>
+
+  <div style="padding:28px 32px;">
+    <div class="breakdown-grid">
+      <div class="breakdown-card">
+        <div class="bc-title">Activity Breakdown</div>
+        <div id="breakdown-bars"></div>
+      </div>
+      <div class="breakdown-card">
+        <div class="bc-title">Visual Proportion</div>
+        <canvas id="donutCanvas" width="260" height="260" style="display:block;margin:0 auto;"></canvas>
+        <div id="donut-legend" style="margin-top:14px;display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+
+    <!-- Big stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div class="mood-stat"><div class="mood-stat-val" style="font-size:26px;">20.66h</div><div class="mood-stat-label">Total actual work across weekend</div></div>
+      <div class="mood-stat"><div class="mood-stat-val">24h</div><div class="mood-stat-label">Total shift window Sat + Sun</div></div>
+      <div class="mood-stat"><div class="mood-stat-val">2.5h</div><div class="mood-stat-label">Sat home time (7pm–9:30pm)</div></div>
+      <div class="mood-stat"><div class="mood-stat-val">5.0h</div><div class="mood-stat-label">Sun home time (7pm–midnight)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VIEW 2: MOOD EXPLORER
+══════════════════════════════════════ -->
+<div class="view" id="view-mood">
+  <div class="view-title">Mood & Energy Explorer</div>
+  <div class="view-sub">Hover over any data point to see details. Toggle lines on/off. Click a time point to compare Saturday vs Sunday at that moment.</div>
+
+  <div class="controls">
+    <span class="ctrl-label">Lines:</span>
+    <button class="toggle-btn active" id="btn-sat" onclick="toggleLine('sat',this)">Saturday</button>
+    <button class="toggle-btn active" id="btn-sun" onclick="toggleLine('sun',this)">Sunday</button>
+    <div class="divider"></div>
+    <span class="ctrl-label">Highlight:</span>
+    <button class="toggle-btn active" id="btn-workband" onclick="toggleWorkBand(this)">Work Shift Band</button>
+  </div>
+
+  <div style="padding:28px 32px;">
+    <div class="mood-container">
+      <canvas id="moodCanvas" height="280"></canvas>
+    </div>
+
+    <div class="mood-stat-row">
+      <div class="mood-stat"><div class="mood-stat-val" id="sat-avg" style="color:#D94030;">—</div><div class="mood-stat-label">Sat Average</div></div>
+      <div class="mood-stat"><div class="mood-stat-val" id="sun-avg" style="color:#72DFF0;">—</div><div class="mood-stat-label">Sun Average</div></div>
+      <div class="mood-stat"><div class="mood-stat-val" id="lowest-pt">3/10</div><div class="mood-stat-label">Lowest Point</div></div>
+      <div class="mood-stat"><div class="mood-stat-val" id="highest-pt" style="color:#72DFF0;">9/10</div><div class="mood-stat-label">Highest Point</div></div>
+    </div>
+
+    <div id="point-detail" style="margin-top:20px;display:none;background:var(--bg2);border:1px solid var(--blue1);border-radius:8px;padding:20px;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:12px;">Selected Time Point</div>
+      <div id="point-detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VIEW 3: ACTIVITY FILTER
+══════════════════════════════════════ -->
+<div class="view" id="view-activity">
+  <div class="view-title">Activity Deep-Dive</div>
+  <div class="view-sub">Click any activity card to explore its breakdown, context, and comparison between Saturday and Sunday.</div>
+
+  <div style="padding:28px 32px;">
+    <div class="activity-grid" id="activity-grid"></div>
+    <div class="act-detail" id="act-detail">
+      <div id="act-detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VIEW 4: SAT vs SUN COMPARISON
+══════════════════════════════════════ -->
+<div class="view" id="view-compare">
+  <div class="view-title">Saturday vs Sunday</div>
+  <div class="view-sub">Both days are structurally identical for 16 hours. The only difference is what happens after 7pm — and that difference defines the entire emotional experience of the weekend.</div>
+
+  <div style="padding:28px 32px;">
+    <div class="compare-row">
+      <div class="compare-card sat">
+        <div class="compare-title sat">SATURDAY</div>
+        <div class="metric-row"><span class="metric-label">Wake time</span><span class="metric-val">5:25am</span></div>
+        <div class="metric-row"><span class="metric-label">Shift start</span><span class="metric-val">6:45am</span></div>
+        <div class="metric-row"><span class="metric-label">Shift end</span><span class="metric-val">6:45pm</span></div>
+        <div class="metric-row"><span class="metric-label">Home by</span><span class="metric-val highlight-green">~7:00pm</span></div>
+        <div class="metric-row"><span class="metric-label">Bedtime</span><span class="metric-val highlight-red">9:30pm</span></div>
+        <div class="metric-row"><span class="metric-label">Home time</span><span class="metric-val highlight-red">2.5h</span></div>
+        <div class="metric-row"><span class="metric-label">Bedtime mood</span><span class="metric-val highlight-red">3/10</span></div>
+        <div class="metric-row"><span class="metric-label">Feeling</span><span class="metric-val highlight-red">Stressed — tomorrow looms</span></div>
+      </div>
+      <div class="compare-card sun">
+        <div class="compare-title sun">SUNDAY</div>
+        <div class="metric-row"><span class="metric-label">Wake time</span><span class="metric-val">5:25am</span></div>
+        <div class="metric-row"><span class="metric-label">Shift start</span><span class="metric-val">6:45am</span></div>
+        <div class="metric-row"><span class="metric-label">Shift end</span><span class="metric-val">6:45pm</span></div>
+        <div class="metric-row"><span class="metric-label">Home by</span><span class="metric-val highlight-green">~7:00pm</span></div>
+        <div class="metric-row"><span class="metric-label">Bedtime</span><span class="metric-val highlight-green">~Midnight</span></div>
+        <div class="metric-row"><span class="metric-label">Home time</span><span class="metric-val highlight-green">5.0h</span></div>
+        <div class="metric-row"><span class="metric-label">Bedtime mood</span><span class="metric-val highlight-green">8/10</span></div>
+        <div class="metric-row"><span class="metric-label">Feeling</span><span class="metric-val highlight-green">Relaxed — 5 days free</span></div>
+      </div>
+    </div>
+
+    <!-- Side by side mood bars -->
+    <div style="background:var(--bg2);border:1px solid var(--blue1);border-radius:8px;padding:24px;margin-bottom:16px;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:20px;">Mood Score at Each Moment — Side by Side</div>
+      <div id="compare-bars"></div>
+    </div>
+
+    <div style="background:rgba(109,207,237,0.05);border:1px solid var(--blue1);border-radius:8px;padding:20px;">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:8px;">The Key Insight</div>
+      <p style="font-size:14px;color:var(--dim);line-height:1.8;">From <strong style="color:var(--white)">5:25am to 7:00pm</strong>, Saturday and Sunday are <strong style="color:var(--white)">identical</strong>. Same alarm, same route, same shift, same breaks, same first meal at 1pm. The entire difference between a 3/10 bedtime and an 8/10 bedtime is <strong style="color:var(--ice)">2.5 hours of extra freedom</strong> and the absence of an alarm the next morning.</p>
+    </div>
+  </div>
+</div>
+
+<div class="app-footer">MALIQ · DYNAMIC VISUALISATION · INFOGRAPHICS & DATA VISUALISATION MODULE · WEEKEND ANALYSIS</div>
+
+<script>
+// ── DATA ──
+const DATA = {
+  activities: [
+    {id:'work',    name:'Actual Work Time', color:'#D94030', satH:10.33, sunH:10.33, icon:'⚙',
+     note:'12h shift window (6:45am–6:45pm) minus 1.67h breaks = 10.33h actual working time.'},
+    {id:'sleep',   name:'Sleep',            color:'#243050', satH:8.75,  sunH:8.75,  icon:'😴',
+     note:'Sleep is shown as % of the 24-hour day, not waking hours — you are not awake during sleep.'},
+    {id:'home',    name:'Home Time',        color:'#1A3A6A', satH:2.5,   sunH:5.0,   icon:'🏠',
+     note:'Sat: 7pm–9:30pm = 2.5h. Sun: 7pm–midnight = 5.0h. Shower, cook, eat, wind-down.'},
+    {id:'breaks',  name:'Breaks ×3',        color:'#1A7A8A', satH:1.67,  sunH:1.67,  icon:'☕',
+     note:'3 breaks within the 12h shift: 30min + 40min + 30min = 1h 40min. Included inside the shift window.'},
+    {id:'commute', name:'Commute',          color:'#1A5C3A', satH:0.33,  sunH:0.33,  icon:'🚗',
+     note:'10 min each way = 20 min round trip = 0.33h per day.'},
+    {id:'prep',    name:'Morning Prep',     color:'#C8A800', satH:0.5,   sunH:0.5,   icon:'💪',
+     note:'~30 min routine: stretch, pushups, brush teeth, shower, get dressed, pack bag. Tea & wind-down before leaving not counted separately.'},
+  ],
+  mood: {
+    labels: ['5:25am','6:45am','9:15am','1:00pm','4:30pm','~7pm','Bedtime'],
+    sat:    [5, 4, 3, 6, 7, 7, 3],
+    sun:    [5, 4, 3, 6, 8, 9, 8],
+    notes: [
+      'Alarm. Stretch, pushups, shower.',
+      'Clock in. 12 hours begin.',
+      'First break (30min). Longest gap until next.',
+      'Meal break (40min). First food of the day.',
+      'Final break (30min). End is visible.',
+      'Home. Shift done.',
+      'Sat: stressed, alarm tomorrow. Sun: relaxed, 5 days free.'
+    ]
+  }
+};
+
+let currentMetric='hours', currentDay='both';
+let showSat=true, showSun=true, showWorkBand=true;
+
+// ── TAB SWITCHING ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('view-'+tab).classList.add('active');
+  if(tab==='mood') setTimeout(drawMoodChart,50);
+  if(tab==='breakdown') setTimeout(drawDonut,50);
+}
+
+// ── TOOLTIP ──
+const tt = document.getElementById('tooltip');
+function showTT(e,time,act,mood){
+  document.getElementById('tt-time').textContent=time;
+  document.getElementById('tt-act').textContent=act;
+  document.getElementById('tt-mood').textContent=mood||'';
+  tt.style.opacity='1';
+  tt.style.left=(e.clientX+14)+'px';
+  tt.style.top=(e.clientY-10)+'px';
+}
+function hideTT(){tt.style.opacity='0';}
+document.addEventListener('mousemove',e=>{
+  tt.style.left=(e.clientX+14)+'px';
+  tt.style.top=(e.clientY-10)+'px';
+});
+
+// ── VIEW 1: BREAKDOWN ──
+function setMetric(m,btn){
+  currentMetric=m;
+  document.querySelectorAll('#view-breakdown .toggle-btn').forEach(b=>{
+    if(['Hours','% Share'].includes(b.textContent)) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  renderBars();
+}
+function setDay(d,btn){
+  currentDay=d;
+  document.querySelectorAll('#view-breakdown .toggle-btn').forEach(b=>{
+    if(['Both','Saturday','Sunday'].includes(b.textContent)) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  renderBars();
+  drawDonut();
+}
+
+function getVal(act){
+  // % mode uses the SUM of all tracked hours as denominator — everything adds to 100%.
+  // This matches the donut chart exactly and avoids mixed bases.
+  function trackedTotal(day){
+    return DATA.activities.reduce((sum,a)=>{
+      if(day==='sat') return sum+a.satH;
+      if(day==='sun') return sum+a.sunH;
+      return sum+a.satH+a.sunH; // both = full weekend combined
+    },0);
+  }
+  if(currentDay==='sat'){
+    if(currentMetric==='hours') return act.satH;
+    return +(act.satH/trackedTotal('sat')*100).toFixed(1);
+  }
+  if(currentDay==='sun'){
+    if(currentMetric==='hours') return act.sunH;
+    return +(act.sunH/trackedTotal('sun')*100).toFixed(1);
+  }
+  // Both = combined weekend
+  const combined = act.satH+act.sunH;
+  if(currentMetric==='hours') return combined;
+  return +(combined/trackedTotal('both')*100).toFixed(1);
+}
+
+function getPctLabel(){ return 'of day'; }
+
+function getMax(){
+  return Math.max(...DATA.activities.map(a=>getVal(a)));
+}
+
+function renderBars(){
+  const container=document.getElementById('breakdown-bars');
+  const max=getMax();
+  container.innerHTML='';
+  DATA.activities.forEach(act=>{
+    const val=getVal(act);
+    const barW=(val/max*100);
+
+    // All activities now use the same tracked-total base — adds to 100%.
+    // In hours mode: show h value + % of tracked total (consistent with % mode).
+    // In % mode: val IS already the % — just display it.
+    const dayLabel = currentDay==='both' ? 'of weekend' : 'of day';
+
+    let displayVal, pctBadge, ttDetail;
+    if(currentMetric==='hours'){
+      // Calculate % for the hours-mode badge using same tracked-total logic
+      const total = DATA.activities.reduce((s,a)=>s+(currentDay==='sat'?a.satH:currentDay==='sun'?a.sunH:a.satH+a.sunH),0);
+      const h = currentDay==='sat'?act.satH:currentDay==='sun'?act.sunH:act.satH+act.sunH;
+      const sharePct = +(h/total*100).toFixed(0);
+      displayVal = h.toFixed(h%1===0?0:2)+'h';
+      pctBadge = `${sharePct}%&nbsp;<span style="color:#8AAFC8;font-size:9px;">${dayLabel}</span>`;
+      ttDetail = act.note ? act.note : `${sharePct}% ${dayLabel}`;
+    } else {
+      displayVal = val+'%';
+      pctBadge = `<span style="color:#8AAFC8;font-size:10px;">${dayLabel}</span>`;
+      ttDetail = act.note ? act.note : `${val}% ${dayLabel}`;
+    }
+
+    const row=document.createElement('div');
+    row.className='bar-row';
+    row.innerHTML=`
+      <span class="bar-label">${act.icon} ${act.name}</span>
+      <div class="bar-track"
+        onmouseenter="showTT(event,'${act.name}','${displayVal}','${ttDetail}')"
+        onmouseleave="hideTT()">
+        <div class="bar-fill" style="width:0%;background:${act.color};"></div>
+      </div>
+      <span class="bar-val">${displayVal}</span>
+      <span class="bar-pct">${pctBadge}</span>`;
+    container.appendChild(row);
+    setTimeout(()=>row.querySelector('.bar-fill').style.width=barW+'%',50);
+  });
+}
+
+function drawDonut(){
+  const canvas=document.getElementById('donutCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const s=260,cx=s/2,cy=s/2,r=90,inner=55;
+  ctx.clearRect(0,0,s,s);
+  const total=DATA.activities.reduce((a,act)=>a+getVal(act),0);
+  let angle=-Math.PI/2;
+  DATA.activities.forEach(act=>{
+    const val=getVal(act);
+    const sweep=val/total*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx+inner*Math.cos(angle),cy+inner*Math.sin(angle));
+    ctx.arc(cx,cy,r,angle,angle+sweep);
+    ctx.arc(cx,cy,inner,angle+sweep,angle,true);
+    ctx.closePath();
+    ctx.fillStyle=act.color;
+    ctx.fill();
+    angle+=sweep;
+  });
+  // Centre
+  ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);
+  ctx.fillStyle='#080C14';ctx.fill();
+  ctx.fillStyle='#F0F6FC';ctx.font='bold 18px Inconsolata,monospace';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(currentDay==='sat'?'SAT':currentDay==='sun'?'SUN':'WKND',cx,cy-6);
+  ctx.fillStyle='#6DCFED';ctx.font='10px Inconsolata,monospace';
+  ctx.fillText(currentDay==='both'?'TOTAL':'',cx,cy+10);
+
+  // Legend
+  const leg=document.getElementById('donut-legend');
+  leg.innerHTML='';
+  DATA.activities.forEach(act=>{
+    const val=getVal(act);
+    const pct=+(val/total*100).toFixed(0);
+    leg.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;font-size:11px;">
+      <span style="width:12px;height:12px;background:${act.color};border-radius:2px;flex-shrink:0;display:inline-block;"></span>
+      <span style="color:#8AAFC8;flex:1;">${act.name}</span>
+      <span style="color:#F0F6FC;font-weight:600;">${pct}%</span>
+    </div>`;
+  });
+}
+
+// ── VIEW 2: MOOD ──
+function toggleLine(which,btn){
+  if(which==='sat') showSat=!showSat;
+  else showSun=!showSun;
+  btn.classList.toggle('active');
+  drawMoodChart();
+}
+function toggleWorkBand(btn){
+  showWorkBand=!showWorkBand;
+  btn.classList.toggle('active');
+  drawMoodChart();
+}
+
+let activePoint=null;
+
+function drawMoodChart(){
+  const canvas=document.getElementById('moodCanvas');
+  if(!canvas) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||700, H=280;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  const {labels,sat,sun}=DATA.mood;
+  const pad={l:52,r:24,t:28,b:48};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const xp=i=>pad.l+i/(labels.length-1)*cw;
+  const yp=v=>pad.t+ch-(v/10*ch);
+
+  // Grid
+  for(let g=2;g<=10;g+=2){
+    ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+    ctx.moveTo(pad.l,yp(g));ctx.lineTo(pad.l+cw,yp(g));ctx.stroke();
+    ctx.fillStyle='#8AAFC8';ctx.font='bold 11px Inconsolata,monospace';
+    ctx.textAlign='right';ctx.fillText(g,pad.l-8,yp(g)+4);
+  }
+
+  // Work band
+  if(showWorkBand){
+    ctx.fillStyle='rgba(123,30,42,0.18)';
+    ctx.fillRect(xp(1),pad.t,xp(5)-xp(1),ch);
+    ctx.fillStyle='rgba(217,64,48,0.4)';
+    ctx.font='bold 10px Inconsolata,monospace';
+    ctx.textAlign='center';ctx.letterSpacing='2px';
+    ctx.fillText('← WORK SHIFT →',(xp(1)+xp(5))/2,pad.t+13);
+    ctx.letterSpacing='0px';
+  }
+
+  // Area fills
+  function area(data,color){
+    ctx.beginPath();
+    data.forEach((v,i)=>i===0?ctx.moveTo(xp(i),yp(v)):ctx.lineTo(xp(i),yp(v)));
+    ctx.lineTo(xp(data.length-1),pad.t+ch);ctx.lineTo(xp(0),pad.t+ch);ctx.closePath();
+    const g2=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+    g2.addColorStop(0,color.replace(')',',0.15)').replace('rgb','rgba'));
+    g2.addColorStop(1,color.replace(')',',0)').replace('rgb','rgba'));
+    ctx.fillStyle=g2;ctx.fill();
+  }
+  if(showSat) area(sat,'rgb(217,64,48)');
+  if(showSun) area(sun,'rgb(114,223,240)');
+
+  // Lines + dots
+  function line(data,color,dash){
+    if(!((data===sat&&showSat)||(data===sun&&showSun))) return;
+    ctx.beginPath();ctx.setLineDash(dash?[8,5]:[]);
+    ctx.strokeStyle=color;ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';
+    data.forEach((v,i)=>i===0?ctx.moveTo(xp(i),yp(v)):ctx.lineTo(xp(i),yp(v)));
+    ctx.stroke();ctx.setLineDash([]);
+    data.forEach((v,i)=>{
+      const isActive=activePoint===i;
+      ctx.beginPath();ctx.arc(xp(i),yp(v),isActive?8:5,0,Math.PI*2);
+      ctx.fillStyle=color;ctx.fill();
+      ctx.beginPath();ctx.arc(xp(i),yp(v),isActive?4:2.5,0,Math.PI*2);
+      ctx.fillStyle='#0D1520';ctx.fill();
+      ctx.fillStyle=color;
+      ctx.font=`bold ${isActive?14:12}px Inconsolata,monospace`;
+      ctx.textAlign='center';ctx.textBaseline='bottom';
+      const offset=dash?-20:-14;
+      ctx.fillText(v,xp(i),yp(v)+offset);
+    });
+  }
+  line(sat,'#D94030',false);
+  line(sun,'#72DFF0',true);
+
+  // Bedtime gap bracket
+  if(showSat&&showSun){
+    const bx=xp(6),sy=yp(sat[6]),uy=yp(sun[6]);
+    ctx.beginPath();ctx.moveTo(bx+22,sy);ctx.lineTo(bx+22,uy);
+    ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#8AAFC8';ctx.font='10px Inconsolata,monospace';
+    ctx.textAlign='left';ctx.textBaseline='middle';
+    ctx.fillText('5pt gap',bx+26,(sy+uy)/2);
+  }
+
+  // X labels
+  labels.forEach((l,i)=>{
+    ctx.fillStyle='#8AAFC8';ctx.font='12px Inconsolata,monospace';
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText(l,xp(i),H-pad.b+10);
+  });
+
+  // Mouse interaction
+  canvas.onmousemove=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(canvas.width/dpr/rect.width);
+    let closest=null,minD=40;
+    labels.forEach((_,i)=>{
+      const d=Math.abs(xp(i)-mx);
+      if(d<minD){minD=d;closest=i;}
+    });
+    if(closest!==null){
+      const note=DATA.mood.notes[closest];
+      showTT(e,labels[closest],note,
+        `Sat: ${sat[closest]}/10  ·  Sun: ${sun[closest]}/10`);
+    } else hideTT();
+  };
+  canvas.onmouseleave=hideTT;
+  canvas.onclick=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(canvas.width/dpr/rect.width);
+    let closest=null,minD=40;
+    labels.forEach((_,i)=>{const d=Math.abs(xp(i)-mx);if(d<minD){minD=d;closest=i;}});
+    if(closest!==null){
+      activePoint=activePoint===closest?null:closest;
+      drawMoodChart();
+      if(activePoint!==null) showPointDetail(activePoint);
+      else document.getElementById('point-detail').style.display='none';
+    }
+  };
+
+  // Update stats
+  const sAvg=(sat.reduce((a,b)=>a+b,0)/sat.length).toFixed(1);
+  const uAvg=(sun.reduce((a,b)=>a+b,0)/sun.length).toFixed(1);
+  document.getElementById('sat-avg').textContent=sAvg+'/10';
+  document.getElementById('sun-avg').textContent=uAvg+'/10';
+}
+
+function showPointDetail(i){
+  const pd=document.getElementById('point-detail');
+  const pc=document.getElementById('point-detail-content');
+  const {labels,sat,sun,notes}=DATA.mood;
+  pd.style.display='block';
+  pc.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+      <div><div style="font-size:11px;color:#8AAFC8;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Time</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#F0F6FC;">${labels[i]}</div></div>
+      <div><div style="font-size:11px;color:#8AAFC8;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Saturday Mood</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;color:#D94030;">${sat[i]}<span style="font-size:16px;opacity:.6;">/10</span></div></div>
+      <div><div style="font-size:11px;color:#8AAFC8;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Sunday Mood</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;color:#72DFF0;">${sun[i]}<span style="font-size:16px;opacity:.6;">/10</span></div></div>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:#8AAFC8;line-height:1.7;border-top:1px solid #2A4A6C;padding-top:12px;">${notes[i]}</div>`;
+}
+
+// ── VIEW 3: ACTIVITY ──
+// Constants for tracked totals — same as used in getVal
+const SAT_TOTAL  = 24.08;
+const SUN_TOTAL  = 26.58;
+const BOTH_TOTAL = 50.66;
+
+function buildActivityCards(){
+  const grid=document.getElementById('activity-grid');
+  DATA.activities.forEach(act=>{
+    const card=document.createElement('div');
+    card.className='act-card';
+    // Sat % using tracked total — consistent with Time Breakdown tab
+    const satPct = +(act.satH/SAT_TOTAL*100).toFixed(0);
+    card.innerHTML=`
+      <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:${act.color};"></div>
+      <div class="act-name" style="color:${act.color};">${act.icon} ${act.name}</div>
+      <div class="act-hours">Sat: ${act.satH}h &nbsp;·&nbsp; Sun: ${act.sunH}h</div>
+      <div class="act-pct">${satPct}%</div>
+      <div style="font-size:9px;color:#4A6A80;position:absolute;bottom:6px;right:12px;">of Sat day</div>`;
+    card.onclick=()=>selectActivity(act,card);
+    grid.appendChild(card);
+  });
+}
+
+function selectActivity(act,card){
+  document.querySelectorAll('.act-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  const detail=document.getElementById('act-detail');
+  const content=document.getElementById('act-detail-content');
+  detail.classList.add('visible');
+
+  // All % use tracked-total denominator — same method as Time Breakdown tab
+  const satPct  = +(act.satH/SAT_TOTAL*100).toFixed(1);
+  const sunPct  = +(act.sunH/SUN_TOTAL*100).toFixed(1);
+  const bothPct = +((act.satH+act.sunH)/BOTH_TOTAL*100).toFixed(1);
+
+  // Bar widths — proportional to the longest activity (sleep or work, whichever is bigger)
+  const maxH = Math.max(...DATA.activities.map(a=>Math.max(a.satH,a.sunH)));
+  const satW  = (act.satH/maxH*100).toFixed(1);
+  const sunW  = (act.sunH/maxH*100).toFixed(1);
+
+  content.innerHTML=`
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:${act.color};margin-bottom:16px;">${act.icon} ${act.name}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div class="mood-stat">
+        <div class="mood-stat-val" style="color:${act.color};">${act.satH}h</div>
+        <div class="mood-stat-label">Saturday · ${satPct}% of day</div>
+      </div>
+      <div class="mood-stat">
+        <div class="mood-stat-val" style="color:${act.color};">${act.sunH}h</div>
+        <div class="mood-stat-label">Sunday · ${sunPct}% of day</div>
+      </div>
+      <div class="mood-stat">
+        <div class="mood-stat-val" style="color:${act.color};">${+(act.satH+act.sunH).toFixed(2)}h</div>
+        <div class="mood-stat-label">Weekend total · ${bothPct}%</div>
+      </div>
+    </div>
+    <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#8AAFC8;margin-bottom:12px;">Day Comparison</div>
+    <div class="detail-bar-row">
+      <span class="detail-day-label" style="color:#4AABDF;">Saturday</span>
+      <div class="bar-track" style="flex:1;height:24px;">
+        <div class="bar-fill" style="width:${satW}%;background:${act.color};height:100%;"></div>
+      </div>
+      <span style="font-size:13px;color:#F0F6FC;font-weight:600;width:80px;text-align:right;">${act.satH}h · ${satPct}%</span>
+    </div>
+    <div class="detail-bar-row" style="margin-top:8px;">
+      <span class="detail-day-label" style="color:#72DFF0;">Sunday</span>
+      <div class="bar-track" style="flex:1;height:24px;">
+        <div class="bar-fill" style="width:${sunW}%;background:${act.color};height:100%;"></div>
+      </div>
+      <span style="font-size:13px;color:#F0F6FC;font-weight:600;width:80px;text-align:right;">${act.sunH}h · ${sunPct}%</span>
+    </div>
+    ${act.note ? `<div style="margin-top:16px;padding:10px 14px;background:rgba(109,207,237,0.06);border-left:3px solid #6DCFED;border-radius:4px;font-size:12px;color:#8AAFC8;line-height:1.6;">${act.note}</div>` : ''}`;
+}
+
+// ── VIEW 4: COMPARE ──
+function buildCompareBars(){
+  const container=document.getElementById('compare-bars');
+  const {labels,sat,sun}=DATA.mood;
+  labels.forEach((l,i)=>{
+    container.innerHTML+=`
+      <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:8px;align-items:center;margin-bottom:10px;">
+        <span style="font-size:11px;color:#8AAFC8;">${l}</span>
+        <div style="position:relative;">
+          <div style="height:22px;background:#0A0E18;border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${sat[i]/10*100}%;background:#D94030;border-radius:3px;"></div>
+          </div>
+          <span style="position:absolute;right:6px;top:3px;font-size:11px;font-weight:700;color:#F0F6FC;">${sat[i]}</span>
+        </div>
+        <div style="position:relative;">
+          <div style="height:22px;background:#0A0E18;border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${sun[i]/10*100}%;background:#72DFF0;border-radius:3px;"></div>
+          </div>
+          <span style="position:absolute;right:6px;top:3px;font-size:11px;font-weight:700;color:#F0F6FC;">${sun[i]}</span>
+        </div>
+      </div>`;
+  });
+  container.innerHTML=`
+    <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:8px;margin-bottom:10px;">
+      <span></span>
+      <span style="font-size:11px;font-weight:700;color:#D94030;letter-spacing:2px;">SATURDAY</span>
+      <span style="font-size:11px;font-weight:700;color:#72DFF0;letter-spacing:2px;">SUNDAY</span>
+    </div>`+container.innerHTML;
+}
+
+// ── INIT ──
+renderBars();
+setTimeout(drawDonut,100);
+buildActivityCards();
+buildCompareBars();
+setTimeout(drawMoodChart,100);
+window.addEventListener('resize',()=>{
+  if(document.getElementById('view-mood').classList.contains('active')) drawMoodChart();
+  if(document.getElementById('view-breakdown').classList.contains('active')) drawDonut();
+});
+</script>
+</body>
+</html>

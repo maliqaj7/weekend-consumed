@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekend Consumed — Maliq Ajala</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700&family=Inconsolata:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080C14; --bg2:#0D1520; --navy:#0A1628;
+  --blue1:#2A4A6C; --ice:#6DCFED; --frost:#C8E8F4;
+  --white:#F0F6FC; --dim:#8AAFC8; --red:#D94030;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg); color:var(--white);
+  font-family:'Inconsolata',monospace;
+  min-height:100vh; display:flex; flex-direction:column;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:999; opacity:.4;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+header{
+  background:var(--navy); border-bottom:3px solid var(--ice);
+  padding:56px 32px 44px; position:relative; overflow:hidden;
+}
+header::after{
+  content:''; position:absolute; bottom:-90px; right:-90px;
+  width:340px; height:340px; border-radius:50%;
+  background:radial-gradient(circle, rgba(109,207,237,0.08) 0%, transparent 70%);
+}
+.wrap{max-width:900px; margin:0 auto; width:100%;}
+.eyebrow{
+  font-size:11px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--dim); margin-bottom:14px;
+}
+h1{
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:clamp(34px,7vw,62px); letter-spacing:2px; line-height:1;
+}
+h1 span{color:var(--ice);}
+.sub{
+  margin-top:16px; max-width:560px; color:var(--dim);
+  font-size:14px; line-height:1.7;
+}
+main{flex:1; padding:40px 32px 64px;}
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;}
+.card{
+  display:block; text-decoration:none; color:inherit;
+  background:var(--bg2); border:1px solid var(--blue1); border-radius:6px;
+  padding:28px 26px; transition:border-color .2s, transform .2s;
+}
+.card:hover{border-color:var(--ice); transform:translateY(-2px);}
+.tag{
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--ice); margin-bottom:12px;
+}
+.card h2{
+  font-family:'Barlow Condensed',sans-serif; font-weight:600;
+  font-size:26px; letter-spacing:1px; margin-bottom:10px;
+}
+.card p{font-size:13px; line-height:1.7; color:var(--dim);}
+.go{margin-top:18px; font-size:12px; letter-spacing:2px; color:var(--frost);}
+.note{
+  margin-top:40px; padding:22px 24px; border-left:3px solid var(--blue1);
+  background:var(--bg2); font-size:13px; line-height:1.8; color:var(--dim);
+}
+.note strong{color:var(--white); font-weight:600;}
+footer{
+  border-top:1px solid var(--blue1); padding:22px 32px;
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--dim); text-align:center;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Personal data &middot; Infographics &amp; Data Visualisation</div>
+    <h1>WEEKEND <span>CONSUMED</span></h1>
+    <p class="sub">
+      One dataset, rendered twice. Two twelve-hour shifts, every hour accounted for,
+      and seven mood scores a day across a weekend worked while studying full time.
+    </p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="cards">
+
+      <a class="card" href="maliq_infographic_v3.html">
+        <div class="tag">Static</div>
+        <h2>The Infographic</h2>
+        <p>
+          A single narrative built around a radial 24-hour clock, with concentric rings for
+          Saturday and Sunday, activity colour-coded around the dial and mood encoded alongside it.
+          Hand-coded HTML and CSS, no libraries.
+        </p>
+        <div class="go">Open &rarr;</div>
+      </a>
+
+      <a class="card" href="maliq_dynamic.html">
+        <div class="tag">Dynamic</div>
+        <h2>The Interactive Version</h2>
+        <p>
+          The same data, open to interrogation. Four tabs, metric and day toggles, a shift band
+          overlay, tooltips and click-to-inspect detail. Charts drawn on HTML5 Canvas in vanilla
+          JavaScript, no charting library.
+        </p>
+        <div class="go">Open &rarr;</div>
+      </a>
+
+    </div>
+
+    <div class="note">
+      <strong>About the data.</strong> Everything here was recorded by me. Through my final year
+      I was in college Monday to Friday and worked two twelve-hour shifts every Saturday and Sunday.
+      The weekend follows the same structure every week, so the timings are a pattern rather than a
+      one-off. Mood was self-rated 1 to 10 at seven fixed transition points: waking, clocking in,
+      first break, after eating, late shift, getting home, and bed.
+    </div>
+  </div>
+</main>
+
+<footer>
+  Maliq Ajala &middot; Infographics &amp; Data Visualisation &middot; Atlantic Technological University
+</footer>
+
+</body>
+</html>
